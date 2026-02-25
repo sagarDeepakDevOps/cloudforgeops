@@ -50,7 +50,7 @@ jobs:
           NEXT_PUBLIC_OWNER_BIO: "Senior DevOps engineer specialising in AWS, Kubernetes, Terraform, and CI/CD automation."
           NEXT_PUBLIC_OWNER_LINKEDIN: https://linkedin.com/in/sagardeepak2002
           NEXT_PUBLIC_FREE_REVIEW_HREF: /free-review
-          NEXT_PUBLIC_FREE_REVIEW_DURATION: "30 min"
+          NEXT_PUBLIC_FREE_REVIEW_DURATION: "20 min"
           NEXT_PUBLIC_CALENDLY_URL: https://calendly.com/sagardeepak2002/30min
 
   # ── 2. Deploy to Vercel (production — main branch only) ───────────────────
