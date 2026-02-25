@@ -2,7 +2,7 @@
 
 import { useState, useId } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Github, Linkedin, CheckCircle2, ArrowRight, AlertCircle } from "lucide-react";
+import { Mail, Github, Linkedin, CheckCircle2, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -11,6 +11,8 @@ interface FormValues {
   email: string;
   company: string;
   description: string;
+  /** Honeypot — must stay empty; hidden from real users */
+  website: string;
 }
 
 interface FormErrors {
@@ -135,10 +137,13 @@ export default function ContactPage() {
     email: "",
     company: "",
     description: "",
+    website: "",   // honeypot
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof FormValues, boolean>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const id = (field: string) => `${uid}-${field}`;
 
@@ -158,19 +163,43 @@ export default function ContactPage() {
     setErrors(validate(values));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const allTouched = { name: true, email: true, company: true, description: true };
+    setSubmitError(null);
+
+    const allTouched = { name: true, email: true, company: true, description: true, website: false };
     setTouched(allTouched);
     const errs = validate(values);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
-    // No backend yet — log payload to console
-    console.log("[CloudForgeOps] Contact form submission:", {
-      ...values,
-      submittedAt: new Date().toISOString(),
-    });
-    setSubmitted(true);
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        // Surface field-level errors returned by the API
+        if (data.fieldErrors) {
+          setErrors(data.fieldErrors as FormErrors);
+        }
+        setSubmitError(
+          data.error ??
+          "Something went wrong. Please try again or email us directly."
+        );
+        return;
+      }
+
+      setSubmitted(true);
+    } catch {
+      setSubmitError("Network error — check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -221,9 +250,10 @@ export default function ContactPage() {
                   </p>
                   <button
                     onClick={() => {
-                      setValues({ name: "", email: "", company: "", description: "" });
+                      setValues({ name: "", email: "", company: "", description: "", website: "" });
                       setTouched({});
                       setErrors({});
+                      setSubmitError(null);
                       setSubmitted(false);
                     }}
                     className="mt-2 text-sm font-medium text-[var(--accent)] underline-offset-4 hover:underline"
@@ -318,18 +348,51 @@ export default function ContactPage() {
                     />
                   </Field>
 
+                  {/* Honeypot — invisible to real users, bots fill it in */}
+                  <div aria-hidden="true" style={{ display: "none" }}>
+                    <label htmlFor={id("website")}>Leave this empty</label>
+                    <input
+                      id={id("website")}
+                      name="website"
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={values.website}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  {/* Submit error banner */}
+                  {submitError && (
+                    <div className="flex items-start gap-2.5 rounded-lg border border-red-500/30 bg-red-500/8 px-4 py-3" role="alert">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+                      <p className="text-sm text-red-400">{submitError}</p>
+                    </div>
+                  )}
+
                   <div className="pt-2">
                     <button
                       type="submit"
+                      disabled={loading}
                       className={
                         "inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-6 py-3 text-sm font-semibold " +
                         "text-[var(--accent-fg)] shadow-sm transition-all duration-150 " +
                         "hover:bg-[var(--accent-hover)] " +
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 " +
+                        "disabled:opacity-60 disabled:cursor-not-allowed"
                       }
                     >
-                      Send message
-                      <ArrowRight className="h-4 w-4" />
+                      {loading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Sending…
+                        </>
+                      ) : (
+                        <>
+                          Send message
+                          <ArrowRight className="h-4 w-4" />
+                        </>
+                      )}
                     </button>
                   </div>
                 </motion.form>

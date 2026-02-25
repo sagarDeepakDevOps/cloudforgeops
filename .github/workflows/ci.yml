@@ -91,3 +91,4 @@ jobs:
             --build-env NEXT_PUBLIC_FREE_REVIEW_HREF="/free-review"
             --build-env NEXT_PUBLIC_FREE_REVIEW_DURATION="30 min"
             --build-env NEXT_PUBLIC_CALENDLY_URL="https://calendly.com/sagardeepak2002/30min"
+            --env RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}"
