@@ -1,0 +1,331 @@
+@import "tailwindcss";
+
+/* ─── Design Tokens ────────────────────────────────────────────── */
+:root {
+  /* Light theme */
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --surface: #f8fafc;
+  --border: #e2e8f0;
+  --muted: #64748b;
+  --accent: #6366f1;        /* indigo-500 — primary brand */
+  --accent-hover: #4f46e5;  /* indigo-600 */
+  --accent-fg: #ffffff;
+
+  /* Glow — light (subtle) */
+  --glow-accent:        rgba(99, 102, 241, 0.18);
+  --glow-accent-strong: rgba(99, 102, 241, 0.35);
+  --glow-card:          rgba(99, 102, 241, 0.10);
+
+  /* Mesh blob opacity */
+  --mesh-opacity: 0.07;
+}
+
+.dark {
+  /* Dark theme — applied by next-themes via class strategy */
+  --background: #0a0a0f;
+  --foreground: #f1f5f9;
+  --surface: #111827;
+  --border: #1e293b;
+  --muted: #94a3b8;
+  --accent: #818cf8;        /* indigo-400 — slightly lighter in dark */
+  --accent-hover: #6366f1;
+  --accent-fg: #0f172a;
+
+  /* Glow — dark (more visible, premium feel) */
+  --glow-accent:        rgba(129, 140, 248, 0.32);
+  --glow-accent-strong: rgba(129, 140, 248, 0.55);
+  --glow-card:          rgba(129, 140, 248, 0.14);
+
+  /* Mesh blob opacity */
+  --mesh-opacity: 0.14;
+}
+
+/* ─── Tailwind v4 theme mapping ────────────────────────────────── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ─── Base ─────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ─── Custom scrollbar (subtle) ────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* ─── Focus ring ───────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ─── Selection ────────────────────────────────────────────────── */
+::selection {
+  background-color: var(--accent);
+  color: var(--accent-fg);
+}
+/* ─── Markdown / Prose styles ──────────────────────────────── */
+.prose-content {
+  line-height: 1.75;
+  color: var(--foreground);
+}
+
+.prose-content h1 {
+  display: none; /* Title is rendered separately in the page hero */
+}
+
+.prose-content h2 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  scroll-margin-top: 5rem;
+}
+
+.prose-content h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  scroll-margin-top: 5rem;
+}
+
+.prose-content p {
+  margin-bottom: 1.1rem;
+  color: var(--foreground);
+}
+
+.prose-content ul,
+.prose-content ol {
+  padding-left: 1.25rem;
+  margin-bottom: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.prose-content ul { list-style-type: disc; }
+.prose-content ol { list-style-type: decimal; }
+
+.prose-content li {
+  color: var(--foreground);
+  padding-left: 0.25rem;
+}
+
+.prose-content li::marker {
+  color: var(--accent);
+}
+
+.prose-content strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.prose-content code {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875em;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.15em 0.4em;
+  color: var(--accent);
+}
+
+.prose-content pre {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.prose-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.prose-content blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  margin-bottom: 1.1rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.prose-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s;
+}
+
+.prose-content a:hover { opacity: 0.8; }
+
+.prose-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+/* ── Paint optimisation ──────────────────────────────────────────────────────
+   content-visibility: auto tells the browser it can skip paint and layout
+   for off-screen sections until they near the viewport. Improves LCP/FCP
+   on long pages. contain-intrinsic-size avoids layout thrash during scroll.
+   Applied only to below-fold landmark sections (not the first section). */
+section + section,
+section ~ section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 600px;
+}
+/* ── Glassmorphism utility ─────────────────────────────────────────────────── */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px) saturate(1.8);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8);
+}
+
+/* ── Animated gradient border (mask technique) ─────────────────────────────── */
+/*
+ * Creates a 1px gradient border using CSS mask compositing.
+ * The ::before pseudo-element fills the entire card at z=-1,
+ * masked so only the 1px border region remains visible.
+ * Opacity transitions from 0 → 1 on hover (0.4s easeOut).
+ * No JS, no @property — pure CSS, works in all modern browsers.
+ */
+.card-gradient-border {
+  position: relative;
+  isolation: isolate;
+}
+.card-gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(129, 140, 248, 0.65) 0%,
+    transparent 45%,
+    rgba(168, 85, 247, 0.45) 100%
+  );
+  /* Mask trick: show only the padding (border) zone */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.card-gradient-border:hover::before {
+  opacity: 1;
+}
+
+/* ── Gradient mesh blobs ───────────────────────────────────────────────────── */
+/*
+ * Blobs are animated with transform only — GPU-composited, zero repaint.
+ * filter: blur() is static. opacity is static. Only position moves.
+ * Very slow cycles (22–32s) so the effect is ambient, not distracting.
+ */
+.mesh-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: var(--mesh-opacity);
+  will-change: transform;
+  pointer-events: none;
+}
+
+.mesh-blob-1 {
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 65%);
+  top: -220px;
+  left: -120px;
+  animation: blob-drift-1 28s ease-in-out infinite alternate;
+}
+
+.mesh-blob-2 {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, #a855f7 0%, transparent 65%);
+  bottom: -160px;
+  right: -80px;
+  animation: blob-drift-2 34s ease-in-out infinite alternate;
+}
+
+.mesh-blob-3 {
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, #06b6d4 0%, transparent 65%);
+  top: 40%;
+  left: 55%;
+  animation: blob-drift-3 22s ease-in-out infinite alternate;
+}
+
+@keyframes blob-drift-1 {
+  from { transform: translate(0px, 0px) scale(1); }
+  to   { transform: translate(54px, 38px) scale(1.08); }
+}
+
+@keyframes blob-drift-2 {
+  from { transform: translate(0px, 0px) scale(1); }
+  to   { transform: translate(-44px, -52px) scale(0.94); }
+}
+
+@keyframes blob-drift-3 {
+  from { transform: translate(-50%, -50%) scale(1); }
+  to   { transform: translate(-50%, -50%) scale(1.14); }
+}
+
+/* Respect user motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .mesh-blob { animation: none; }
+}
