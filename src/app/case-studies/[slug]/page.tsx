@@ -4,7 +4,9 @@ import { getCaseStudy, getCaseStudyPaths, extractToc, injectHeadingIds } from "@
 import { CaseStudySidebar } from "@/components/layout/CaseStudySidebar";
 import { ArchitectureDiagram } from "@/components/sections/ArchitectureDiagram";
 import { MermaidDiagram } from "@/components/ui/MermaidDiagram";
+import { ZoomableDiagram } from "@/components/ui/ZoomableDiagram";
 import { Badge } from "@/components/ui/Badge";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { formatDate } from "@/lib/utils";
 import { caseDiagrams } from "@/config/diagrams";
 import { siteConfig } from "@/config/site";
@@ -24,16 +26,19 @@ export async function generateMetadata({
   const caseStudy = await getCaseStudy(slug);
   if (!caseStudy) return { title: "Not Found" };
 
+  const canonicalUrl = `${siteConfig.url}/case-studies/${slug}`;
+  const fullTitle = `${caseStudy.title} | ${siteConfig.name} – DevOps & Cloud Consultant`;
+
   return {
-    title: caseStudy.title,
+    title: fullTitle,
     description: caseStudy.excerpt,
-    alternates: {
-      canonical: `${siteConfig.url}/case-studies/${slug}`,
-    },
+    authors: [{ name: siteConfig.owner.name }],
+    keywords: caseStudy.tags,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: caseStudy.title,
+      title: fullTitle,
       description: caseStudy.excerpt,
-      url: `${siteConfig.url}/case-studies/${slug}`,
+      url: canonicalUrl,
       type: "article",
       publishedTime: caseStudy.date,
       tags: caseStudy.tags,
@@ -46,6 +51,11 @@ export async function generateMetadata({
           alt: caseStudy.title,
         },
       ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: fullTitle,
+      description: caseStudy.excerpt,
     },
   };
 }
@@ -66,8 +76,46 @@ export default async function CaseStudyPage({
   const contentWithIds = injectHeadingIds(caseStudy.contentHtml);
   const toc = extractToc(contentWithIds);
 
+  const canonicalUrl = `${siteConfig.url}/case-studies/${slug}`;
+
+  // JSON-LD: Article + BreadcrumbList
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: caseStudy.title,
+    description: caseStudy.excerpt,
+    url: canonicalUrl,
+    datePublished: caseStudy.date,
+    author: {
+      "@type": "Person",
+      name: siteConfig.owner.name,
+      url: siteConfig.url,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    keywords: caseStudy.tags.join(", "),
+    image: `${siteConfig.url}${siteConfig.ogImage}`,
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
+      { "@type": "ListItem", position: 2, name: "Case Studies", item: `${siteConfig.url}/case-studies` },
+      { "@type": "ListItem", position: 3, name: caseStudy.title, item: canonicalUrl },
+    ],
+  };
+
   return (
     <>
+      <JsonLd data={articleJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+
       {/* ── Page header ── */}
       <div className="border-b border-[var(--border)] bg-[var(--surface)]">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -140,10 +188,9 @@ export default async function CaseStudyPage({
             {/* Architecture diagram — Mermaid if available, else simple steps */}
             {caseDiagrams[slug] ? (
               <div className="mb-12">
-                <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[var(--accent)]">
-                  Architecture Overview
-                </p>
-                <MermaidDiagram chart={caseDiagrams[slug]} />
+                <ZoomableDiagram title="Architecture Overview" height={560}>
+                  <MermaidDiagram chart={caseDiagrams[slug]} />
+                </ZoomableDiagram>
               </div>
             ) : caseStudy.architecture.length > 0 ? (
               <div className="mb-12">

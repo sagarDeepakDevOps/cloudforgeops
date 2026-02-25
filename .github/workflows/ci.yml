@@ -35,8 +35,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_SITE_NAME: CloudForgeOps
-          NEXT_PUBLIC_SITE_URL: https://cloudforgeops.com
+          NEXT_PUBLIC_SITE_NAME: RelientOps
+          NEXT_PUBLIC_SITE_URL: https://relientops.io
           NEXT_PUBLIC_SITE_TAGLINE: "Freelance DevOps & Cloud Consulting"
           NEXT_PUBLIC_SITE_DESCRIPTION: "Production-grade cloud infrastructure, Kubernetes, and CI/CD — built by a senior DevOps engineer."
           NEXT_PUBLIC_SITE_OG_IMAGE: /og-image.png
@@ -74,10 +74,10 @@ jobs:
           working-directory: ./
           vercel-args: >-
             --prod
-            --build-env NEXT_PUBLIC_SITE_NAME="CloudForgeOps"
+            --build-env NEXT_PUBLIC_SITE_NAME="RelientOps"
             --build-env NEXT_PUBLIC_SITE_TAGLINE="Freelance DevOps & Cloud Engineering"
             --build-env NEXT_PUBLIC_SITE_DESCRIPTION="I design, build, and operate cloud-native infrastructure. From Kubernetes to CI/CD pipelines, I help startups ship faster and stay reliable."
-            --build-env NEXT_PUBLIC_SITE_URL="https://cloudforgeops.vercel.app"
+            --build-env NEXT_PUBLIC_SITE_URL="https://relientops.io"
             --build-env NEXT_PUBLIC_SITE_OG_IMAGE="/images/og-default.png"
             --build-env NEXT_PUBLIC_CONTACT_EMAIL="sagardeepak2002@gmail.com"
             --build-env NEXT_PUBLIC_SOCIAL_GITHUB="https://github.com/sagarDeepakDevOps"

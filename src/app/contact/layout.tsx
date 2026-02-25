@@ -4,7 +4,7 @@ import { siteConfig } from "@/config/site";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Get in touch with CloudForgeOps. Describe your infrastructure challenge and we'll respond within one business day — no sales pitch, just a direct technical conversation.",
+    `Get in touch with ${siteConfig.name}. Describe your infrastructure challenge and I'll respond within one business day — no sales pitch, just a direct technical conversation.`,
   openGraph: {
     title: `Contact | ${siteConfig.name}`,
     description:

@@ -16,10 +16,10 @@ function fallback(value: string | undefined, def: string): string {
 
 export const env = {
   // ── Brand identity ────────────────────────────────────────────────────────
-  SITE_NAME:        fallback(process.env.NEXT_PUBLIC_SITE_NAME,        "CloudForgeOps"),
+  SITE_NAME:        fallback(process.env.NEXT_PUBLIC_SITE_NAME,        "RelientOps"),
   SITE_TAGLINE:     fallback(process.env.NEXT_PUBLIC_SITE_TAGLINE,     "Freelance DevOps & Cloud Engineering"),
   SITE_DESCRIPTION: fallback(process.env.NEXT_PUBLIC_SITE_DESCRIPTION, "I design, build, and operate cloud-native infrastructure. From Kubernetes to CI/CD pipelines, I help startups ship faster and stay reliable."),
-  SITE_URL:         fallback(process.env.NEXT_PUBLIC_SITE_URL,         "https://cloudforgeops.com"),
+  SITE_URL:         fallback(process.env.NEXT_PUBLIC_SITE_URL,         "https://relientops.io"),
   SITE_OG_IMAGE:    fallback(process.env.NEXT_PUBLIC_SITE_OG_IMAGE,    "/images/og-default.png"),
 
   // ── Contact ───────────────────────────────────────────────────────────────
