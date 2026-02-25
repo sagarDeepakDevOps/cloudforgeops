@@ -58,37 +58,67 @@ jobs:
     name: Deploy to Vercel (Production)
     needs: build
     runs-on: ubuntu-latest
-    # Only deploy on push to main, not on pull requests
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./
-          vercel-args: >-
-            --prod
-            --build-env NEXT_PUBLIC_SITE_NAME="RelientOps"
-            --build-env NEXT_PUBLIC_SITE_TAGLINE="Freelance DevOps & Cloud Engineering"
-            --build-env NEXT_PUBLIC_SITE_DESCRIPTION="I design, build, and operate cloud-native infrastructure. From Kubernetes to CI/CD pipelines, I help startups ship faster and stay reliable."
-            --build-env NEXT_PUBLIC_SITE_URL="https://relientops.io"
-            --build-env NEXT_PUBLIC_SITE_OG_IMAGE="/images/og-default.png"
-            --build-env NEXT_PUBLIC_CONTACT_EMAIL="sagardeepak2002@gmail.com"
-            --build-env NEXT_PUBLIC_SOCIAL_GITHUB="https://github.com/sagarDeepakDevOps"
-            --build-env NEXT_PUBLIC_SOCIAL_LINKEDIN="https://linkedin.com/in/sagardeepak2002"
-            --build-env NEXT_PUBLIC_OWNER_NAME="Deepak Sagar"
-            --build-env NEXT_PUBLIC_OWNER_TITLE="Freelance DevOps & Cloud Engineer"
-            --build-env NEXT_PUBLIC_OWNER_EXPERIENCE="3+"
-            --build-env NEXT_PUBLIC_OWNER_EXPERIENCE_LABEL="Hands-On Cloud & Automation Experience"
-            --build-env NEXT_PUBLIC_OWNER_BIO="I work directly with founders and engineering teams to design, automate, and stabilize cloud environments across AWS and Azure."
-            --build-env NEXT_PUBLIC_OWNER_LINKEDIN="https://linkedin.com/in/sagardeepak2002"
-            --build-env NEXT_PUBLIC_FREE_REVIEW_HREF="/free-review"
-            --build-env NEXT_PUBLIC_FREE_REVIEW_DURATION="30 min"
-            --build-env NEXT_PUBLIC_CALENDLY_URL="https://calendly.com/sagardeepak2002/30min"
-            --env RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}"
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # Write all NEXT_PUBLIC_ vars into .env.production so `vercel build`
+      # picks them up automatically — no shell-quoting issues with spaces.
+      - name: Write .env.production
+        run: |
+          cat > .env.production <<'ENVEOF'
+          NEXT_PUBLIC_SITE_NAME=RelientOps
+          NEXT_PUBLIC_SITE_TAGLINE=Freelance DevOps & Cloud Engineering
+          NEXT_PUBLIC_SITE_DESCRIPTION=I design, build, and operate cloud-native infrastructure. From Kubernetes to CI/CD pipelines, I help startups ship faster and stay reliable.
+          NEXT_PUBLIC_SITE_URL=https://relientops.io
+          NEXT_PUBLIC_SITE_OG_IMAGE=/images/og-default.png
+          NEXT_PUBLIC_CONTACT_EMAIL=sagardeepak2002@gmail.com
+          NEXT_PUBLIC_SOCIAL_GITHUB=https://github.com/sagarDeepakDevOps
+          NEXT_PUBLIC_SOCIAL_LINKEDIN=https://linkedin.com/in/sagardeepak2002
+          NEXT_PUBLIC_OWNER_NAME=Deepak Sagar
+          NEXT_PUBLIC_OWNER_TITLE=Freelance DevOps & Cloud Engineer
+          NEXT_PUBLIC_OWNER_EXPERIENCE=3+
+          NEXT_PUBLIC_OWNER_EXPERIENCE_LABEL=Hands-On Cloud & Automation Experience
+          NEXT_PUBLIC_OWNER_BIO=I work directly with founders and engineering teams to design, automate, and stabilize cloud environments across AWS and Azure.
+          NEXT_PUBLIC_OWNER_LINKEDIN=https://linkedin.com/in/sagardeepak2002
+          NEXT_PUBLIC_FREE_REVIEW_HREF=/free-review
+          NEXT_PUBLIC_FREE_REVIEW_DURATION=30 min
+          NEXT_PUBLIC_CALENDLY_URL=https://calendly.com/sagardeepak2002/30min
+          ENVEOF
+
+      # Pull project metadata (creates .vercel/ directory)
+      - name: Pull Vercel project settings
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Add the server-only secret to the Vercel project (idempotent)
+      - name: Set RESEND_API_KEY on Vercel
+        run: |
+          echo "${{ secrets.RESEND_API_KEY }}" \
+            | vercel env add RESEND_API_KEY production \
+                --token=${{ secrets.VERCEL_TOKEN }} --force
+
+      # Build locally using Vercel's build pipeline (honours .env.production)
+      - name: Build
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Upload the pre-built output — no re-build on Vercel's side
+      - name: Deploy prebuilt output
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
