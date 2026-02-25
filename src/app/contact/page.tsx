@@ -44,18 +44,31 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.45, ease: "easeOut" as const, delay },
 });
 
+function getHandleFromUrl(url: string | undefined, provider: "github" | "linkedin") {
+  if (!url) return "";
+  try {
+    const u = new URL(url);
+    const parts = u.pathname.split("/").filter(Boolean);
+    const last = parts.length ? parts[parts.length - 1] : u.hostname.replace(/^www\./, "");
+    if (provider === "github") return `@${last}`;
+    return last;
+  } catch (e) {
+    return url;
+  }
+}
+
 const social = [
   {
     label: "GitHub",
     href: siteConfig.social.github,
     icon: Github,
-    handle: "@cloudforgeops",
+    handle: getHandleFromUrl(siteConfig.social.github, "github"),
   },
   {
     label: "LinkedIn",
     href: siteConfig.social.linkedin,
     icon: Linkedin,
-    handle: "cloudforgeops",
+    handle: getHandleFromUrl(siteConfig.social.linkedin, "linkedin"),
   },
 ];
 
