@@ -3,12 +3,11 @@ import type { Metadata } from "next";
 import { getCaseStudy, getCaseStudyPaths, extractToc, injectHeadingIds } from "@/lib/mdx";
 import { CaseStudySidebar } from "@/components/layout/CaseStudySidebar";
 import { ArchitectureDiagram } from "@/components/sections/ArchitectureDiagram";
-import { MermaidDiagram } from "@/components/ui/MermaidDiagram";
-import { ZoomableDiagram } from "@/components/ui/ZoomableDiagram";
 import { Badge } from "@/components/ui/Badge";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { DiagramSection } from "@/components/ui/ArchitectureFlow/DiagramSection";
 import { formatDate } from "@/lib/utils";
-import { caseDiagrams } from "@/config/diagrams";
+import { architectureConfigs } from "@/config/architectureData";
 import { siteConfig } from "@/config/site";
 
 // ── Static Generation ─────────────────────────────────────────────────────────
@@ -185,12 +184,10 @@ export default async function CaseStudyPage({
 
           {/* ── Article body ── */}
           <article>
-            {/* Architecture diagram — Mermaid if available, else simple steps */}
-            {caseDiagrams[slug] ? (
+            {/* Architecture diagram — React Flow if config exists, else simple step list */}
+            {architectureConfigs[slug] ? (
               <div className="mb-12">
-                <ZoomableDiagram title="Architecture Overview" height={560}>
-                  <MermaidDiagram chart={caseDiagrams[slug]} />
-                </ZoomableDiagram>
+                <DiagramSection config={architectureConfigs[slug]} />
               </div>
             ) : caseStudy.architecture.length > 0 ? (
               <div className="mb-12">
